@@ -232,19 +232,33 @@ describe('Moves', () => {
       });
     });
 
-    it('should not be able to move outside the board', () => {
-      let mock_board = make_mock_board(3);
+    it('should not be possible to move outside the board', () => {
+      let mock_square_board = make_mock_board(3);
       let troll = new Troll();
-      mock_board[0][0] = troll;
-      let troll_moves = troll.get_moves(mock_board, [0, 0]);
+      mock_square_board[0][0] = troll;
+      let troll_moves = troll.get_moves(mock_square_board, [0, 0]);
       troll_moves.length.should.equal(3);
       let expected_moves = [[0, 1], [1, 0], [1, 1]];
       expected_moves.forEach((expected_move) => {
         troll_moves.should.containEql(expected_move);
       });
+
+      let mock_diamond_board = make_mock_board(3);
+      mock_diamond_board[0][0] = null;
+      mock_diamond_board[0][2] = null;
+      mock_diamond_board[2][0] = null;
+      mock_diamond_board[2][2] = null;
+      mock_diamond_board[1][1] = troll;
+      troll_moves = troll.get_moves(mock_diamond_board, [1, 1]);
+      troll_moves.length.should.equal(4);
+      expected_moves = [[0, 1], [1, 0], [1, 2], [2, 1]];
+      expected_moves.forEach((expected_move) => {
+        troll_moves.should.containEql(expected_move);
+      });
+
     });
 
-    it('should not be able to on to another piece', () => {
+    it('should not be possible to move on to another piece', () => {
       let mock_board = make_mock_board(3);
       let troll = new Troll();
       mock_board[1][1] = troll;
