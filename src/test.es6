@@ -127,7 +127,7 @@ describe('Board', () => {
       });
     });
 
-    it('should have empty squares everwhere else', () => {
+    it('should have empty squares everywhere else', () => {
       let initial_empty_positions = [
         'A8',
         'B6', 'B7', 'B8', 'B9', 'B10',
@@ -170,7 +170,7 @@ describe('Board', () => {
 
       thud.board[0][7].should.equal(EMPTY_PIECE);
 
-      (typeof thud.board[0][0]).should.equal(typeof null);
+      should(thud.board[0][0]).be.null;
 
     });
 
@@ -213,8 +213,8 @@ var make_mock_board = function (size) {
 };
 
 
-describe('Moves', () => {
-  describe('Troll movement', () => {
+describe('Movement', () => {
+  describe('of Trolls', () => {
 
     it('should be able to move one space horizontally, vertically and diagonally in both directions', () => {
       let mock_board = make_mock_board(5);
@@ -275,6 +275,18 @@ describe('Moves', () => {
       expected_moves.forEach((expected_move) => {
         troll_moves.should.containEql(expected_move);
       });
+    });
+
+    it('should not be possible to move through another piece', () => {
+      false.should.be.ok;
+    });
+
+    it('should not be possible to move through an empty space', () => {
+      false.should.be.ok;
+    });
+
+    it('should be possible for a troll to shove another troll', () => {
+      false.should.be.ok;
     });
 
   });
