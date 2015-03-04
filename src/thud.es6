@@ -1,5 +1,5 @@
-import * as range from 'lodash/utility/range';
-import {intersection} from 'lodash/array/intersection';
+import {range} from 'lodash/utility';
+import {intersection} from 'lodash/array';
 
 const THUD_BOARD_SIZE = 15;
 
