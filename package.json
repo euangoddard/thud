@@ -9,10 +9,11 @@
   },
   "license": "MIT",
   "devDependencies": {
-    "gulp": "^3.8.11",
-    "gulp-babel": "^4.0.0",
+    "gulp": "~3.8.11",
+    "gulp-babel": "~4.0.0",
     "gulp-mocha": "^2.0.0",
     "gulp-rename": "^1.2.0",
-    "should": "^5.0.1"
+    "should": "^5.0.1",
+    "lodash": "~3.3.1"
   }
 }

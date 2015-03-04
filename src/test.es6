@@ -1,6 +1,6 @@
 import should from 'should';
 
-import {Thud,Troll,Dwarf,EMPTY_PIECE,InvalidPositionError,InvalidPieceError} from './thud';
+import {Thud,Piece,TROLL,DWARF,EMPTY_PIECE,InvalidPositionError,InvalidPieceError} from './thud';
 
 
 describe('Board', () => {
@@ -94,7 +94,7 @@ describe('Board', () => {
     });
   });
 
-  describe('Initial board layout', () => {
+  describe('Initial layout', () => {
 
     it('should have dwarves around the edges', () => {
       let initial_dwarf_positions = [
@@ -115,7 +115,7 @@ describe('Board', () => {
       ];
       let thud = new Thud();
       initial_dwarf_positions.forEach((position) => {
-        thud.get_piece(position).should.be.instanceof(Dwarf, position);
+        thud.get_piece(position).should.equal(DWARF, position);
       });
     });
 
@@ -123,7 +123,7 @@ describe('Board', () => {
       let initial_troll_positions = ['G7', 'G8', 'G9', 'H7', 'H9', 'J7', 'J8', 'J9'];
       let thud = new Thud();
       initial_troll_positions.forEach((position) => {
-        thud.get_piece(position).should.be.instanceof(Troll, position);
+        thud.get_piece(position).should.equal(TROLL, position);
       });
     });
 
@@ -153,8 +153,8 @@ describe('Board', () => {
     });
   });
 
-  describe('Board representation', () => {
-    it('should be representable as a matrix', () => {
+  describe('Representation', () => {
+    it('should be as a matrix', () => {
       let thud = new Thud();
       thud.board.should.be.Array;
       thud.board.length.should.equal(15);
@@ -164,9 +164,9 @@ describe('Board', () => {
         line.length.should.equal(15);
       });
 
-      thud.board[0][5].should.be.instanceof(Dwarf);
+      thud.board[0][5].should.equal(DWARF);
 
-      thud.board[6][6].should.be.instanceof(Troll);
+      thud.board[6][6].should.equal(TROLL);
 
       thud.board[0][7].should.equal(EMPTY_PIECE);
 
@@ -213,12 +213,56 @@ var make_mock_board = function (size) {
 };
 
 
-describe('Movement', () => {
-  describe('of Trolls', () => {
+describe('Pieces', () => {
+
+  it('should be configurable to have limited movement', () => {
+    let mock_piece = new Piece('M', 1);
+    mock_piece.movement_limit.should.equal(1);
+
+    let mock_board = make_mock_board(5);
+    mock_board[1][1] = mock_piece;
+    let moves = mock_piece.get_moves(mock_board, [1, 1]);
+    moves.length.should.equal(8);
+    let expected_moves = [
+      [0, 0], [0, 1], [0, 2],
+      [1, 0], [1, 2],
+      [2, 0], [2, 1], [2, 2],
+    ];
+    expected_moves.forEach((expected_move) => {
+      moves.should.containEql(expected_move);
+    });
+  });
+
+  it('should be configurable to have unbounded movement', () => {
+    false.should.be.ok;
+  });
+
+  it('should move only within the limits of the board', () => {
+    false.should.be.ok;
+  });
+
+  it('should move on to valid spaces', () => {
+    false.should.be.ok;
+  });
+
+  it('should only move through valid spaces', () => {
+    false.should.be.ok;
+  });
+
+  it('should only move on to empty spaces', () => {
+    false.should.be.ok;
+  });
+
+  it('should only move through empty spaces', () => {
+    false.should.be.ok;
+  });
+  
+  /*
+  describe('TROLL', () => {
 
     it('should be able to move one space horizontally, vertically and diagonally in both directions', () => {
       let mock_board = make_mock_board(5);
-      let troll = new Troll();
+      let troll = new TROLL();
       mock_board[1][1] = troll;
       let troll_moves = troll.get_moves(mock_board, [1, 1]);
       troll_moves.length.should.equal(8);
@@ -234,7 +278,7 @@ describe('Movement', () => {
 
     it('should not be possible to move outside the board', () => {
       let mock_square_board = make_mock_board(3);
-      let troll = new Troll();
+      let troll = new TROLL();
       mock_square_board[0][0] = troll;
       let troll_moves = troll.get_moves(mock_square_board, [0, 0]);
       troll_moves.length.should.equal(3);
@@ -260,10 +304,10 @@ describe('Movement', () => {
 
     it('should not be possible to move on to another piece', () => {
       let mock_board = make_mock_board(3);
-      let troll = new Troll();
+      let troll = new TROLL();
       mock_board[1][1] = troll;
-      mock_board[0][0] = new Troll();
-      mock_board[2][2] = new Dwarf();
+      mock_board[0][0] = new TROLL();
+      mock_board[2][2] = new DWARF();
 
       let troll_moves = troll.get_moves(mock_board, [1, 1]);
       troll_moves.length.should.equal(6);
@@ -290,4 +334,5 @@ describe('Movement', () => {
     });
 
   });
+*/
 });

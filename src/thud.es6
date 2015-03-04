@@ -1,3 +1,6 @@
+import * as range from 'lodash/utility/range';
+import {intersection} from 'lodash/array/intersection';
+
 const THUD_BOARD_SIZE = 15;
 
 const COLUMN_INDICIES_BY_REF = {
@@ -94,11 +97,11 @@ export class Thud {
 			this.board.push(row);
 		}
 		INITIAL_DWARF_POSITIONS.forEach((position) => {
-			this.set_piece(position, new Dwarf());
+			this.set_piece(position, DWARF);
 		});
 
 		INITIAL_TROLL_POSITIONS.forEach((position) => {
-			this.set_piece(position, new Troll());
+			this.set_piece(position, TROLL);
 		});
 		INITIAL_EMPTY_POSITIONS.forEach((position) => {
 			this.set_piece(position, EMPTY_PIECE);
@@ -126,13 +129,9 @@ export class Thud {
 		this.board.forEach((row, row_index) => {
 			let padded_index = pad_string(row_index + 1, 2);
 			let column_outputs = [`${padded_index}|`];
-			row.forEach((column) => {
-				if (column instanceof Dwarf) {
-					column_outputs.push('D');
-				} else if (column instanceof Troll) {
-					column_outputs.push('T');
-				} else if (column === EMPTY_PIECE) {
-					column_outputs.push('_');
+			row.forEach((piece) => {
+				if (piece) {
+					column_outputs.push(piece.identfier);
 				} else {
 					column_outputs.push(' ');
 				}
@@ -178,44 +177,76 @@ export class Thud {
 
 
 // Pieces
-class Piece {
-	constructor () {
-
+export class Piece {
+	constructor (identfier, movement_limit) {
+		this.identfier = identfier;
+		this.movement_limit = movement_limit;
 	}
 
 	get_moves (board, position) {
-		throw new ThudError('Piece cannot be moved - it is abstract!');
-	}
-}
+		if (this.movement_limit === 0) {
+			throw new ThudError('This piece cannot be moved!');
+		}
 
-export class Troll extends Piece {
-
-	get_moves (board, position) {
 		let row_count = board.length;
 		let column_count = board[0].length;
 
-		let possible_direct_moves = [];
+		let board_rows = range(row_count);
+		let board_columns = range(column_count);
+
 		let [position_row, position_column] = position;
-		for (let i=Math.max(0, position_row - 1); i < Math.min(row_count, position_row + 2); i++) {
-			for (let j=Math.max(0, position_column - 1); j < Math.min(column_count, position_column + 2); j++) {
-				if (board[i][j] === EMPTY_PIECE) {
-					possible_direct_moves.push([i, j]);
-				}
-			}
+		let piece_row_candidates;
+		let piece_column_candidates;
+		if (this.movement_limit) {
+			let piece_row_options = range(
+				position_row - this.movement_limit,
+				position_row + this.movement_limit + 1
+			);
+			piece_row_candidates = intersection(board_rows, piece_row_options);
+
+			let piece_column_options = range(
+				position_column - this.movement_limit,
+				position_column + this.movement_limit + 1
+			);
+			piece_column_candidates = intersection(board_columns, piece_column_options);
+		} else {
+			piece_row_candidates = board_rows;
+			piece_column_candidates = board_columns;
 		}
+
+		let possible_direct_moves = [];
+		// Orthogonal moves
+		piece_row_candidates.forEach((row_candidate) => {
+			if (board[row_candidate][position_column] === EMPTY_PIECE) {
+				possible_direct_moves.push([row_candidate, position_column]);
+			}
+		});
+
+		piece_column_candidates.forEach((column_candidate) => {
+			if (board[position_row][column_candidate] === EMPTY_PIECE) {
+				possible_direct_moves.push([position_row, column_candidate]);
+			}
+		});
+
+		// Diagonal moves
+		piece_row_candidates.forEach((row_candidate) => {
+			piece_column_candidates.forEach((column_candidate) => {
+				if (row_candidate === column_candidate && board[row_candidate][column_candidate] === EMPTY_PIECE) {
+					possible_direct_moves.push([row_candidate, column_candidate]);
+				}
+			});
+		});
 
 		return possible_direct_moves;
 	}
 }
 
-export class Dwarf extends Piece {
+export const TROLL = new Piece('T', 1);
 
-	get_moves (thud) {
+export const DWARF = new Piece('D', null);
 
-	}
-}
+export const EMPTY_PIECE = new Piece('_', 0);
 
-export const EMPTY_PIECE = new Piece();
 
 // Exceptions
 
