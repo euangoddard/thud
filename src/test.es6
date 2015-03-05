@@ -220,8 +220,8 @@ describe('Pieces', () => {
     mock_piece.movement_limit.should.equal(1);
 
     let mock_board = make_mock_board(5);
-    mock_board[1][1] = mock_piece;
-    let moves = mock_piece.get_moves(mock_board, [1, 1]);
+    mock_board[2][2] = mock_piece;
+    let moves = mock_piece.get_moves(mock_board, [2, 2]);
     moves.length.should.equal(8);
     let expected_moves = [
       [0, 0], [0, 1], [0, 2],

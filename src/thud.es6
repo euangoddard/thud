@@ -3,23 +3,13 @@ import {intersection} from 'lodash/array';
 
 const THUD_BOARD_SIZE = 15;
 
-const COLUMN_INDICIES_BY_REF = {
-	A: 0,
-	B: 1,
-	C: 2,
-	D: 3,
-	E: 4,
-	F: 5,
-	G: 6,
-	H: 7,
-	J: 8,
-	K: 9,
-	L: 10,
-	M: 11,
-	N: 12,
-	O: 13,
-	P: 14,
-};
+const COLUMN_REFS = ['A', 'B', 'C', 'D', 'E', 'F', 'G', 'H', 'J', 'K', 'L', 'M', 'N', 'O', 'P'];
+
+let COLUMN_INDICIES_BY_REF = {};
+COLUMN_REFS.forEach((ref, index) => {
+	COLUMN_INDICIES_BY_REF[ref] = index;
+});
+
 
 const VALID_COLUMNS_BY_ROW = [
 	[5, 6, 7, 8, 9],
@@ -38,6 +28,7 @@ const VALID_COLUMNS_BY_ROW = [
 	[4, 5, 6, 7, 8, 9, 10],
 	[5, 6, 7, 8, 9],
 ];
+
 
 const INITIAL_DWARF_POSITIONS = [
 	'A6', 'A7', 'A9', 'A10',
@@ -176,6 +167,12 @@ export class Thud {
 }
 
 
+let convert_coords_to_position_reference = function (row, column) {
+	let column_ref = COLUMN_REFS[column];
+	return column_ref + row;
+};
+
+
 // Pieces
 export class Piece {
 	constructor (identfier, movement_limit) {
@@ -188,57 +185,53 @@ export class Piece {
 			throw new ThudError('This piece cannot be moved!');
 		}
 
-		let row_count = board.length;
-		let column_count = board[0].length;
-
-		let board_rows = range(row_count);
-		let board_columns = range(column_count);
-
 		let [position_row, position_column] = position;
-		let piece_row_candidates;
-		let piece_column_candidates;
-		if (this.movement_limit) {
-			let piece_row_options = range(
-				position_row - this.movement_limit,
-				position_row + this.movement_limit + 1
-			);
-			piece_row_candidates = intersection(board_rows, piece_row_options);
 
-			let piece_column_options = range(
-				position_column - this.movement_limit,
-				position_column + this.movement_limit + 1
-			);
-			piece_column_candidates = intersection(board_columns, piece_column_options);
-		} else {
-			piece_row_candidates = board_rows;
-			piece_column_candidates = board_columns;
-		}
+		let valid_spaces = this.get_valid_spaces_for_board(board);
 
 		let possible_direct_moves = [];
-		// Orthogonal moves
-		piece_row_candidates.forEach((row_candidate) => {
-			if (board[row_candidate][position_column] === EMPTY_PIECE) {
-				possible_direct_moves.push([row_candidate, position_column]);
-			}
-		});
 
-		piece_column_candidates.forEach((column_candidate) => {
-			if (board[position_row][column_candidate] === EMPTY_PIECE) {
-				possible_direct_moves.push([position_row, column_candidate]);
+		let radius_limit = this.movement_limit || Infinity;
+		for (let r=1; r<=radius_limit; r++) {
+			let spaces_at_distance = this.get_spaces_at_distance(
+				position_row,
+				position_column,
+				r
+			);
+			let valid_spaces_at_distance = intersection(valid_spaces, spaces_at_distance);
+			console.log(valid_spaces, spaces_at_distance);
+			if (valid_spaces_at_distance.length) {
+				possible_direct_moves.push(valid_spaces_at_distance);
+			} else {
+				break;
 			}
-		});
-
-		// Diagonal moves
-		piece_row_candidates.forEach((row_candidate) => {
-			piece_column_candidates.forEach((column_candidate) => {
-				if (row_candidate === column_candidate && board[row_candidate][column_candidate] === EMPTY_PIECE) {
-					possible_direct_moves.push([row_candidate, column_candidate]);
-				}
-			});
-		});
+		}
 
 		return possible_direct_moves;
 	}
+
+	get_spaces_at_distance (x, y, r) {
+		let candidate_spaces = [
+			[x + r, y], [x - r, y], // Horizontal
+			[x, y + r], [x, y - r], // Vertical
+			[x + r, y + r], [x + r, y - r], [x - r, y + r], [x - r, y - r] // Diagonal
+		];
+		return candidate_spaces;
+	}
+
+	get_valid_spaces_for_board (board) {
+		let valid_spaces = [];
+		board.forEach((row, row_index) => {
+			row.forEach((space, column_index) => {
+				if (space) {
+					valid_spaces.push(convert_coords_to_position_reference(row_index, column_index));
+				}
+			});
+		});
+		return valid_spaces;
+	}
+
+
 }
 
 export const TROLL = new Piece('T', 1);
