@@ -169,7 +169,71 @@ export class Thud {
 
 let convert_coords_to_position_reference = function (row, column) {
 	let column_ref = COLUMN_REFS[column];
-	return column_ref + row;
+	return column_ref + (row + 1);
+};
+
+let convert_multiple_coords_to_position_references = function (coords) {
+	let position_references = [];
+	coords.forEach((coord) => {
+		position_references.push(convert_coords_to_position_reference(...coord));
+	});
+	return position_references;
+};
+
+
+// Space
+
+export class Space {
+	constructor (identfier) {
+		if (typeof identfier === 'string') {
+			this.ref = identfier;
+		} else {
+			this.ref = convert_coords_to_position_reference(...identfier);
+		}
+	}
+
+	get coordinates () {
+		return Space.convert_position_reference_to_coordinates(this.ref);
+	}
+
+	set coordinates (value) {
+		this.ref = this.constructor.convert_coordinates_to_position_reference(...value);
+	}
+
+
+}
+Space.convert_coordinates_to_position_reference = (row, column) => {
+	let column_ref = COLUMN_REFS[column];
+	let row_ref = row + 1;
+	return `${column_ref}${row_ref}`;
+};
+Space.convert_position_reference_to_coordinates = (position_reference) =>  {
+	let column_ref = position_reference[0];
+	let column = COLUMN_INDICIES_BY_REF[column_ref];
+	if (column === undefined) {
+		throw new InvalidPositionError(`Column ${column_ref} is invalid`);
+	}
+
+	let row_ref = position_reference.slice(1);
+	let row = parseInt(row_ref, 10) - 1;
+
+	// Check for the Thud stone
+	if (row === 7 && column === 7) {
+		throw new InvalidPositionError(`There is no piece at ${position_reference}. The Thurd Stone is there!`);
+	}
+
+	// Check the piece is not off the top or side of the board
+	if (row < 0 || THUD_BOARD_SIZE < row) {
+		throw new InvalidPositionError(`Row ${row_ref} is invalid`);
+	}
+
+	// Check the piece is not outside at the corners
+	let valid_columns_for_row = VALID_COLUMNS_BY_ROW[row] || [];
+	if (valid_columns_for_row.indexOf(column) === -1) {
+		throw new InvalidPositionError(`${position_reference} is invalid`);
+	}
+
+	return [row, column];
 };
 
 
@@ -198,10 +262,12 @@ export class Piece {
 				position_column,
 				r
 			);
-			let valid_spaces_at_distance = intersection(valid_spaces, spaces_at_distance);
-			console.log(valid_spaces, spaces_at_distance);
+			let coords_at_distance = convert_multiple_coords_to_position_references(spaces_at_distance);
+
+			let valid_spaces_at_distance = intersection(valid_spaces, coords_at_distance);
+			console.log(valid_spaces, coords_at_distance, valid_spaces_at_distance);
 			if (valid_spaces_at_distance.length) {
-				possible_direct_moves.push(valid_spaces_at_distance);
+				possible_direct_moves = possible_direct_moves.concat(valid_spaces_at_distance);
 			} else {
 				break;
 			}
@@ -230,7 +296,6 @@ export class Piece {
 		});
 		return valid_spaces;
 	}
-
 
 }
 

@@ -1,6 +1,6 @@
 import should from 'should';
 
-import {Thud,Piece,TROLL,DWARF,EMPTY_PIECE,InvalidPositionError,InvalidPieceError} from './thud';
+import {Thud, Space, Piece, TROLL, DWARF, EMPTY_PIECE, InvalidPositionError, InvalidPieceError} from './thud';
 
 
 describe('Board', () => {
@@ -212,6 +212,24 @@ var make_mock_board = function (size) {
   return rows;
 };
 
+describe('Spaces', () => {
+  it('should accept a string as a reference', () => {
+    let space = new Space('A1');
+    space.ref.should.equal('A1');
+  });
+
+  it('should also accept coordinates', () => {
+    let space = new Space([0, 0]);
+    space.ref.should.equal('A1');
+  });
+
+  it('should be represented as coordinates', () => {
+    let space = new Space('A1');
+    space.coordinates.should.equal([0, 0]);
+  });
+
+});
+
 
 describe('Pieces', () => {
 
@@ -256,7 +274,7 @@ describe('Pieces', () => {
   it('should only move through empty spaces', () => {
     false.should.be.ok;
   });
-  
+
   /*
   describe('TROLL', () => {
 
