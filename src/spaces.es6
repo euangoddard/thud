@@ -35,6 +35,13 @@ export class Space {
 
 }
 
+Space.bulk = (...identfiers) => {
+    let spaces = [];
+    identfiers.forEach((identfier) => {
+        spaces.push(new Space(identfier));
+    });
+    return spaces;
+};
 
 export class SpaceError extends Error {}
 

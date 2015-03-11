@@ -17,24 +17,60 @@ describe('Pieces', () => {
     mock_board[2][2] = mock_piece;
     let moves = mock_piece.get_moves(mock_board, new Space('C3'));
     moves.length.should.equal(8);
-    let expected_moves = [
-      new Space('B2'), new Space('C2'), new Space('D2'), 
-      new Space('B3'), new Space('D3'), 
-      new Space('B4'), new Space('C4'), new Space('D4'), 
-    ];
+    let expected_moves = Space.bulk(
+      'B2', 'C2', 'D2', 
+      'B3', 'D3', 
+      'B4', 'C4', 'D4'
+    );
     assert_moves_equal(expected_moves, moves);
   });
 
   it('should be configurable to have unbounded movement', () => {
-    false.should.be.ok;
+    let mock_piece = new Piece('M', null);
+
+    let mock_board = make_mock_board(5);
+    mock_board[2][2] = mock_piece;
+    let moves = mock_piece.get_moves(mock_board, new Space('C3'));
+    moves.length.should.equal(16);
+    let expected_moves = Space.bulk(
+      'A1', 'C1', 'E1',
+      'B2', 'C2', 'D2', 
+      'A3', 'B3', 'D3', 'E3',
+      'B4', 'C4', 'D4',
+      'A5', 'C5', 'E5'
+    );
+    assert_moves_equal(expected_moves, moves);
   });
 
   it('should move only within the limits of the board', () => {
-    false.should.be.ok;
+    let mock_piece = new Piece('M', 2);
+
+    let mock_board = make_mock_board(3);
+    mock_board[1][1] = mock_piece;
+    let moves = mock_piece.get_moves(mock_board, new Space('B2'));
+    moves.length.should.equal(8);
+    let expected_moves = Space.bulk(
+      'A1', 'B1', 'C1',
+      'A2', 'C2',
+      'A3', 'B3', 'C3'
+    );
+    assert_moves_equal(expected_moves, moves);
   });
 
   it('should move on to valid spaces', () => {
-    false.should.be.ok;
+    let mock_piece = new Piece('M', 1);
+
+    let mock_board = make_mock_board(3);
+    mock_board[1][1] = mock_piece;
+    mock_board[0][1] = null;
+    let moves = mock_piece.get_moves(mock_board, new Space('B2'));
+    moves.length.should.equal(7);
+    let expected_moves = Space.bulk(
+      'A1', 'C1',
+      'A2', 'C2',
+      'A3', 'B3', 'C3'
+    );
+    assert_moves_equal(expected_moves, moves);
   });
 
   it('should only move through valid spaces', () => {
@@ -42,7 +78,19 @@ describe('Pieces', () => {
   });
 
   it('should only move on to empty spaces', () => {
-    false.should.be.ok;
+    let mock_piece = new Piece('M', 1);
+
+    let mock_board = make_mock_board(3);
+    mock_board[1][1] = mock_piece;
+    mock_board[0][1] = null;
+    let moves = mock_piece.get_moves(mock_board, new Space('B2'));
+    moves.length.should.equal(7);
+    let expected_moves = Space.bulk(
+      'A1', 'C1',
+      'A2', 'C2',
+      'A3', 'B3', 'C3'
+    );
+    assert_moves_equal(expected_moves, moves);
   });
 
   it('should only move through empty spaces', () => {
@@ -145,7 +193,7 @@ let make_mock_board = (size) => {
 let assert_moves_equal = (expected_moves, moves) => {
   moves.should.be.Array;
   moves.length.should.equal(expected_moves.length);
-  expected_move_refs = pluck(expected_moves, 'ref');
+  let expected_move_refs = pluck(expected_moves, 'ref');
   
   let matched_move_refs = [];
   moves.forEach((move) => {

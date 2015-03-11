@@ -66,4 +66,12 @@ describe('Spaces', () => {
     }, SpaceError);
   });
 
+  it('should easily be generated in bulk', () => {
+    let spaces = Space.bulk('A1', 'B2', 'D5');
+    spaces.length.should.equal(3);
+    spaces[0].ref.should.equal('A1');
+    spaces[1].ref.should.equal('B2');
+    spaces[2].ref.should.equal('D5');
+  });
+
 });

@@ -37,16 +37,24 @@ export class Piece {
                 break;
             }
         }
-        console.log(possible_direct_moves);
         return possible_direct_moves;
     }
 
     get_spaces_at_distance (x, y, r) {
-        let candidate_spaces = [
-            new Space([x + r, y]), new Space([x - r, y]), // Horizontal
-            new Space([x, y + r]), new Space([x, y - r]), // Vertical
-            new Space([x + r, y + r]), new Space([x + r, y - r]), new Space([x - r, y + r]), new Space([x - r, y - r]) // Diagonal
+        let candidate_coordinates = [
+            [x + r, y], [x - r, y], // Horizontal
+            [x, y + r], [x, y - r], // Vertical
+            [x + r, y + r], [x + r, y - r], [x - r, y + r], [x - r, y - r] // Diagonal
+
         ];
+        let candidate_spaces = [];
+        candidate_coordinates.forEach((coordinates) => {
+            try {
+                candidate_spaces.push(new Space(coordinates));
+            } catch (e) {
+                // must be out of bounds
+            }
+        });
         return candidate_spaces;
     }
 
@@ -75,7 +83,7 @@ let get_intersecting_spaces = (pool, candidates) => {
     let pool_refs = pluck(pool, 'ref');
     let intersecting_spaces = [];
     candidates.forEach((candidate) => {
-        if (pool_refs.indexOf(candidate.ref)) {
+        if (pool_refs.indexOf(candidate.ref) !== -1) {
             intersecting_spaces.push(candidate);
         }
     });
