@@ -16,7 +16,7 @@ gulp.task('build', function () {
 
 
 gulp.task('test', ['build'], function () {
-	return gulp.src('./dist/**/test*.js', {read: false})
+	return gulp.src('./dist/tests/**/*.js', {read: false})
         .pipe(mocha());
 });
 
