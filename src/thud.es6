@@ -1,15 +1,9 @@
 import {range} from 'lodash/utility';
 import {intersection} from 'lodash/array';
 
+import {Space} from './spaces';
+
 const THUD_BOARD_SIZE = 15;
-
-const COLUMN_REFS = ['A', 'B', 'C', 'D', 'E', 'F', 'G', 'H', 'J', 'K', 'L', 'M', 'N', 'O', 'P'];
-
-let COLUMN_INDICIES_BY_REF = {};
-COLUMN_REFS.forEach((ref, index) => {
-	COLUMN_INDICIES_BY_REF[ref] = index;
-});
-
 
 const VALID_COLUMNS_BY_ROW = [
 	[5, 6, 7, 8, 9],
@@ -180,61 +174,6 @@ let convert_multiple_coords_to_position_references = function (coords) {
 	return position_references;
 };
 
-
-// Space
-
-export class Space {
-	constructor (identfier) {
-		if (typeof identfier === 'string') {
-			this.ref = identfier;
-		} else {
-			this.ref = convert_coords_to_position_reference(...identfier);
-		}
-	}
-
-	get coordinates () {
-		return Space.convert_position_reference_to_coordinates(this.ref);
-	}
-
-	set coordinates (value) {
-		this.ref = this.constructor.convert_coordinates_to_position_reference(...value);
-	}
-
-
-}
-Space.convert_coordinates_to_position_reference = (row, column) => {
-	let column_ref = COLUMN_REFS[column];
-	let row_ref = row + 1;
-	return `${column_ref}${row_ref}`;
-};
-Space.convert_position_reference_to_coordinates = (position_reference) =>  {
-	let column_ref = position_reference[0];
-	let column = COLUMN_INDICIES_BY_REF[column_ref];
-	if (column === undefined) {
-		throw new InvalidPositionError(`Column ${column_ref} is invalid`);
-	}
-
-	let row_ref = position_reference.slice(1);
-	let row = parseInt(row_ref, 10) - 1;
-
-	// Check for the Thud stone
-	if (row === 7 && column === 7) {
-		throw new InvalidPositionError(`There is no piece at ${position_reference}. The Thurd Stone is there!`);
-	}
-
-	// Check the piece is not off the top or side of the board
-	if (row < 0 || THUD_BOARD_SIZE < row) {
-		throw new InvalidPositionError(`Row ${row_ref} is invalid`);
-	}
-
-	// Check the piece is not outside at the corners
-	let valid_columns_for_row = VALID_COLUMNS_BY_ROW[row] || [];
-	if (valid_columns_for_row.indexOf(column) === -1) {
-		throw new InvalidPositionError(`${position_reference} is invalid`);
-	}
-
-	return [row, column];
-};
 
 
 // Pieces
